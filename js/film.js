@@ -24,7 +24,7 @@ export class Film {
       for (let f = a; f <= b; f++) { const t = (f - a) / Math.max(1, b - a), e = t * t * (3 - 2 * t); this.side[f] = sa + (sb - sa) * e; }
     }
     this.resize();
-    const first = Math.min(3, m.lo.sheets); let n = 0;
+    const first = 1; let n = 0;                      // the opening shot; the rest streams in behind the intro
     await Promise.all(Array.from({ length: first }, (_, i) => this._load('lo', i).then(() => onProgress(++n / first))));
     for (let i = 0; i < 4; i++) this._pump();
     const loop = () => { requestAnimationFrame(loop); this._tick(); }; loop();

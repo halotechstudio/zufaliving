@@ -137,7 +137,7 @@ Promise.all([imgReady, document.fonts?.ready, filmReady, new Promise(r => setTim
     .add(() => { document.body.classList.remove('is-loading'); $('.loader').remove(); measure(); onScroll(); })
     .fromTo('.hero__media img', { scale: 1.2 }, { scale: 1, duration: 2.6, ease: 'expo.out' }, '-=.9')
     .to('.hero__word .ch', { y: 0, duration: 1.4, ease: 'expo.out', stagger: .08 }, '-=2.3')
-    .from(['.hero__content .eyebrow', '.hero__lede', '.hero__tag', '.hero__cue'], { y: 24, opacity: 0, duration: 1.1, ease: 'expo.out', stagger: .1 }, '-=1.4')
+    .from(['.hero__content .eyebrow', '.hero__lede', '.hero__tag', '.hero__cue'], { y: 24, opacity: 0, duration: 1.1, ease: 'expo.out', stagger: .1, clearProps: 'opacity,transform' }, '-=1.4')
     .from('.nav', { y: -24, opacity: 0, duration: 1, ease: 'expo.out', clearProps: 'opacity,transform' }, '-=1');
 });
 addEventListener('resize', () => { measure(); onScroll(); });
