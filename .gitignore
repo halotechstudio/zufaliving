@@ -8,3 +8,5 @@ blender/export/
 node_modules/
 .DS_Store
 Thumbs.db
+film/_frames/
+film/progress.json

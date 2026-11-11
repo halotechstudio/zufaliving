@@ -54,14 +54,24 @@ const beats = $$('.beat').map(el => ({
 const measure = () => beats.forEach(b => { b.c = b.el.offsetTop + b.el.offsetHeight / 2; });
 // hero beat: anchor the 3D at the top of the page
 const heroMedia = $('[data-hero]'), heroContent = $('.hero__content'), railLinks = $$('.rail a');
-let world = null, curCh = -2;
+let world = null, film = null, rmap = null, curCh = -2, lastClock = '';
+const clock = $('[data-clock]'), clockL = $('[data-clock-label]');
+const story = { hour: 5.9, region: 0 };
 
 function storyState() {
   const y = (lenis ? lenis.scroll : scrollY) + innerHeight / 2;
   let i = 0; while (i < beats.length - 1 && beats[i + 1].c <= y) i++;
   const A = beats[i], B = beats[Math.min(i + 1, beats.length - 1)];
   const raw = B === A ? 0 : clamp((y - A.c) / (B.c - A.c)), k = clamp((raw - .18) / .64);
-  return { i, A, B, k, y };
+  return { i, A, B, k, raw, y };
+}
+// film frame for every beat: shots in the film map to their keyframe; the region beats (2D map) sit on the night crane
+function mapBeatsToFilm() {
+  const { keys, cams } = film.m; let j = 0;
+  beats.forEach(b => { const at = cams.indexOf(b.cam, j); if (at >= 0) { b.f = keys[at]; j = at; } else b.f = null; });
+  for (let i = 0; i < beats.length; i++) { if (beats[i].f !== null) continue;
+    let a = i; while (a > 0 && beats[a].f === null) a--; let z = i; while (z < beats.length - 1 && beats[z].f === null) z++;
+    const span = z - a; beats[i].f = beats[a].f + (beats[z].f - beats[a].f) * (i - a) / span; }
 }
 function onScroll() {
   const sy = lenis ? lenis.scroll : scrollY, vh = innerHeight;
@@ -76,11 +86,13 @@ function onScroll() {
     const last = b === beats[beats.length - 1];
     const o = last ? 1 - sstep(.3, .65, d) : 1 - sstep(.22, .5, Math.abs(d));
     b.inner.style.opacity = o.toFixed(3); b.inner.style.transform = `translateY(${(d * -50).toFixed(1)}px)`; b.inner.style.visibility = o < .01 ? 'hidden' : 'visible'; }
-  if (!world || document.body.classList.contains('is-exploring')) return;
-  const { A, B, k } = storyState();
-  world.setStory({ a: A.cam, b: B.cam, k, hour: lerp(A.hour, B.hour, k), build: lerp(A.build, B.build, k), region: lerp(A.region, B.region, k), reg: lerp(A.reg, B.reg, k), hl: k < .5 ? A.hl : B.hl });
-  const side = lerp(A.side, B.side, k);
-  world.setViewOffset(...(isMobile() ? [0, -.18] : [side * .13, -.13 * lerp(A.low, B.low, k)]));
+  if (document.body.classList.contains('is-exploring')) return;
+  const { A, B, k, raw } = storyState();
+  // the film follows the scroll continuously (it eases into each shot by itself); hour/map follow the beat easing
+  if (film && A.f != null) film.set(lerp(A.f, B.f, clamp((raw - .08) / .84)));
+  story.hour = lerp(A.hour, B.hour, k); story.region = lerp(A.region, B.region, k);
+  if (rmap) rmap.update(clamp(story.region), lerp(A.reg, B.reg, k));
+  const s = hhmm(story.hour); if (s !== lastClock) { lastClock = s; clock.textContent = s; clockL.textContent = dayPart(story.hour); }
   const ch = k < .5 ? A.ch : B.ch;
   if (ch !== curCh) { curCh = ch; railLinks.forEach((a, j) => a.classList.toggle('is-active', j === ch)); }
 }
@@ -94,16 +106,29 @@ gsap.to('.loader__mark span', { y: 0, duration: 1.1, ease: 'expo.out', stagger: 
 const tl = gsap.to(load, { v: 80, duration: 2.4, ease: 'power2.out', onUpdate: setLoad });
 const heroImg = $('.hero__media img');
 const imgReady = heroImg.complete ? Promise.resolve() : new Promise(r => { heroImg.onload = r; heroImg.onerror = r; });
-const worldReady = import('./world.js').then(({ World }) => {
-  try {
-    const compass = $('[data-compass]'), clock = $('[data-clock]'), clockL = $('[data-clock-label]');
-    let lastClock = '';
-    world = new World($('[data-canvas]'), { onSelect: showPlot, onHover: hoverPlot, onFrame: (a, h) => {
-      compass.style.transform = `rotate(${a}rad)`; const s = hhmm(h); if (s !== lastClock) { lastClock = s; clock.textContent = s; clockL.textContent = dayPart(h); } } });
-    measure(); onScroll(); world.snap(); window.zufa = { world, lenis };
-  } catch (err) { console.error(err); $('[data-canvas]').innerHTML = '<p style="position:absolute;inset:auto 0 40% 0;text-align:center;color:#cbbfae">This experience needs WebGL, which isn’t available in this browser.</p>'; }
+const filmReady = Promise.all([import('./film.js'), import('./region.js')]).then(async ([{ Film }, { RegionMap }]) => {
+  rmap = new RegionMap($('[data-region-map]'));
+  film = await new Film($('[data-film]')).init(p => { load.v = Math.max(load.v, 80 * p); setLoad(); });
+  mapBeatsToFilm(); measure(); onScroll(); film.snap(); window.zufa = { film, lenis, get world() { return world; } };
 }).catch(err => console.error(err));
-Promise.all([imgReady, document.fonts?.ready, worldReady, new Promise(r => setTimeout(r, 900))]).then(() => {
+
+// the real-time 3D world (explorer + Villa Studio) loads only when someone asks for it
+let worldLoading = null;
+function getWorld() {
+  if (world) return Promise.resolve(world);
+  if (worldLoading) return worldLoading;
+  const wl = $('[data-wload]'); wl.classList.add('is-on');
+  worldLoading = import('./world.js').then(({ World }) => {
+    const compass = $('[data-compass]');
+    world = new World($('[data-canvas]'), { onSelect: showPlot, onHover: hoverPlot, onFrame: a => { compass.style.transform = `rotate(${a}rad)`; } });
+    world.setStory({ a: 'overview', b: 'overview', k: 0, hour: clamp(story.hour, 7, 20), build: 0, region: 0, reg: 0, hl: null }); world.snap();
+    return new Promise(r => setTimeout(r, 400)).then(() => world);
+  }).catch(err => { console.error(err); worldLoading = null;
+    $('[data-canvas]').innerHTML = '<p style="position:absolute;inset:auto 0 40% 0;text-align:center;color:#cbbfae">The interactive masterplan needs WebGL, which isn’t available in this browser.</p>'; throw err;
+  }).finally(() => wl.classList.remove('is-on'));
+  return worldLoading;
+}
+Promise.all([imgReady, document.fonts?.ready, filmReady, new Promise(r => setTimeout(r, 900))]).then(() => {
   tl.kill();
   gsap.timeline()
     .to(load, { v: 100, duration: .5, ease: 'power2.inOut', onUpdate: setLoad })
@@ -143,9 +168,11 @@ function renderList() {
 renderList();
 list.addEventListener('click', e => { const b = e.target.closest('[data-pick]'); if (b) world.select(+b.dataset.pick, true); });
 panel.setAttribute('data-lenis-prevent', '');
-function openExplorer(id) {
-  if (!world) return;
-  document.body.classList.add('is-exploring'); $('[data-explorer]').setAttribute('aria-hidden', 'false'); lenis?.stop();
+async function openExplorer(id) {
+  lenis?.stop();
+  try { await getWorld(); } catch { lenis?.start(); return; }
+  world.resume(); world.setHour(story.hour > 18.6 ? 10 : clamp(story.hour, 7, 18.6)); world.snap();
+  document.body.classList.add('is-exploring'); $('[data-explorer]').setAttribute('aria-hidden', 'false');
   world.setViewOffset(...(isMobile() ? [0, .12] : [-.1, 0])); world.setMode('explore');
   const h = clamp(world.stT.hour, 6, 22); timeIn.value = h; timeOut.textContent = hhmm(h);
   if (id) setTimeout(() => world.select(id, true), 1650);
@@ -154,6 +181,7 @@ function closeExplorer() {
   document.body.classList.remove('is-exploring'); $('[data-explorer]').setAttribute('aria-hidden', 'true'); lenis?.start();
   tip.hidden = true; showPlot(null); world.setMode('story'); exFilter = 'all'; renderList();
   $$('[data-filter]').forEach(b => b.classList.toggle('is-on', b.dataset.filter === 'all')); onScroll();
+  setTimeout(() => { if (!document.body.classList.contains('is-exploring')) world.pause(); }, 1000);
 }
 $$('[data-explore]').forEach(b => b.addEventListener('click', () => openExplorer()));
 $('[data-close]').addEventListener('click', closeExplorer);
@@ -206,9 +234,12 @@ function setStudio(type) {
   $$('[data-st-type]').forEach(b => b.classList.toggle('is-on', b.dataset.stType === type));
   world.enterStudio(type);
 }
-function openStudio(type) {
-  if (!world) return;
-  document.body.classList.add('is-exploring', 'is-studio'); $('[data-studio-ui]').setAttribute('aria-hidden', 'false'); lenis?.stop();
+async function openStudio(type) {
+  lenis?.stop();
+  try { await getWorld(); } catch { lenis?.start(); return; }
+  world.resume();
+  document.body.classList.add('is-exploring', 'is-studio'); $('[data-studio-ui]').setAttribute('aria-hidden', 'false');
+  world.setHour(story.hour > 20 ? 12 : clamp(story.hour, 6.6, 20));
   world.setViewOffset(...(isMobile() ? [0, .14] : [.1, 0]));
   const h = clamp(world.stT.hour, 6.6, 20); world.setHour(h);
   let best = null; $$('[data-st-hour]').forEach(b => { if (!best || Math.abs(+b.dataset.stHour - h) < Math.abs(+best.dataset.stHour - h)) best = b; });
@@ -218,6 +249,7 @@ function openStudio(type) {
 function closeStudio() {
   document.body.classList.remove('is-exploring', 'is-studio'); $('[data-studio-ui]').setAttribute('aria-hidden', 'true'); lenis?.start();
   world.exitStudio(); onScroll();
+  setTimeout(() => { if (!document.body.classList.contains('is-exploring')) world.pause(); }, 1000);
 }
 $$('[data-studio]').forEach(b => b.addEventListener('click', () => openStudio(b.dataset.studio)));
 $$('[data-st-type]').forEach(b => b.addEventListener('click', () => setStudio(b.dataset.stType)));
@@ -271,4 +303,4 @@ const Ambience = {
 };
 const sndBtn = $('[data-sound]');
 sndBtn.addEventListener('click', () => { const on = Ambience.toggle(); sndBtn.setAttribute('aria-pressed', on); sndBtn.title = on ? 'Turn sound off' : 'Turn sound on'; sndBtn.setAttribute('aria-label', on ? 'Turn ambient sound off' : 'Turn ambient sound on'); });
-setInterval(() => { if (world) Ambience.update(world.st.hour, world.st.region); }, 400);
+setInterval(() => { const ex = world && document.body.classList.contains('is-exploring'); Ambience.update(ex ? world.st.hour : story.hour, ex ? 0 : story.region); }, 400);

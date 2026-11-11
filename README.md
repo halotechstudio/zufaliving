@@ -14,14 +14,20 @@ Then open http://localhost:4317. Any static host (Netlify, Vercel, S3, cPanel) w
 - Every plot is shown as available. To mark plots sold or held, add a status to `js/site-data.js`.
 
 ## The story ("One day at ZUFA")
-The whole page is one scroll through a single day. A fixed 3D world sits behind 23 text "beats" in `index.html`. Each beat's `data-*` attributes set the world state when that beat is centred on screen, and the scene blends smoothly between beats:
-- `data-cam`: camera shot (keys are defined in `world.js` → `_buildKeys`)
-- `data-hour`: time of day (sun, sky, lamps, stars)
-- `data-build`: 0–1, how many homes have risen on the estates
-- `data-region` / `data-reg`: shows the schematic regional map and how many of the 5 developments are lit
-- `data-hl`: plot categories to highlight
+The whole page is one scroll through a single day, shown as a **film rendered in Blender Cycles** (`film/`) and scrubbed by the scroll (`js/film.js`). 23 text "beats" in `index.html` sit over it:
+- `data-cam`: the film shot this beat stops on (shot names are listed in `film/film.json` → `cams`)
+- `data-hour`: time of day for the on-screen clock and the soundscape
+- `data-region` / `data-reg`: shows the 2D regional map (`js/region.js`) and how many of the 5 developments are drawn in
 
-To re-time or re-order the story, edit these attributes; no code changes needed.
+The real-time 3D world (`js/world.js`) is no longer behind the story. It loads only when someone opens **Find your estate** or **Walk around this villa**, and its render loop sleeps when they close it.
+
+### Re-rendering the film
+The film is built in `blender/zufa_assets.blend`, scene **ZUFA_Site**:
+1. `build_site.py` (roads, plots, homes facing their road, palms, lamps), then `build_landscape.py` (forest, groves, granite outcrops), then `build_film.py` (sun and sky through the day, night lighting, homes rising, the camera flight). The shot list and times come from `blender/site.json` (`node tools/export-site-blender.mjs > blender/site.json`). Each move gets 28–64 frames depending on how far the view travels; long, low moves crane up over the site; the camera eases to a stop on every shot.
+2. Render headless (about 12 s a frame on a GTX 1650; resumable):
+   `blender -b blender/zufa_assets.blend --python blender/render_film.py`
+   It writes `film/hd/s###.webp` (4 frames of 1280×720 per sheet), `film/lo/s###.webp` (16 frames of 480×270, loaded first), and `film/film.json`. Raw frames go to `film/_frames/` (not committed).
+3. If shots are added, removed or renamed, keep the `data-cam` names in `index.html` matching the film's shot names.
 
 ## Blender models
 Everything 3D that isn't generated from the layout is built by scripts in `blender/`, into `blender/zufa_assets.blend` (scene **ZUFA_Assets**):
@@ -48,6 +54,8 @@ Material names starting `ZUFA_` matter: the website drives night glow from `ZUFA
 - `index.html`: page content and copy
 - `css/main.css`: design system and layout
 - `js/main.js`: scroll story, explorer UI, inventory and form
+- `js/film.js`: the scroll-scrubbed Cycles film (sprite sheets, progressive loading, sub-frame crossfade)
+- `js/region.js`: the 2D regional map for "The bigger picture"
 - `js/masterplan.js`: base 3D scene (plots, roads, entrance canopy, clubhouse, forest, explorer, villa preview)
 - `js/world.js`: the living world on top of it (time of day, homes rising, cars and gate, birds, clouds, stars, regional map)
 - `js/site-data.js`: **generated** plot polygons in metres, plus the plot schedule

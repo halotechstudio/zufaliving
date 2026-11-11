@@ -513,6 +513,9 @@ export class Masterplan {
       c.target.lerpVectors(fromT, t, e); this.camera.lookAt(c.target);
       if (k >= 1) { this._flying = null; c.enabled = true; done && done(); } };
   }
+  // the render loop sleeps while the scroll film is on screen
+  pause() { if (this._raf) cancelAnimationFrame(this._raf); this._raf = null; }
+  resume() { if (this._raf) return; this.clock.getDelta(); const loop = () => { this._raf = requestAnimationFrame(loop); this._tick(); }; loop(); }
   resetView() { const k = this._key('explore'); this.select(null); this._fly(k.p, k.t, 1.4); }
 
   setFilter(cat) { this.filter = cat; this._refreshPlots(); }
