@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZUFA Living — One day at ZUFA</title>
+<meta name="description" content="ZUFA Living — a 25-acre gated community of wellness living on Chevella Road near Manneguda. 59 quarter-acre and half-acre estates. Spend a day there.">
+<meta name="theme-color" content="#0f0e0c">
+<meta property="og:title" content="ZUFA Living — Imagine Possibilities">
+<meta property="og:description" content="A 25-acre gated community of wellness living. 59 estates. 45 minutes from the ORR.">
+<meta property="og:image" content="assets/img/hero-1280.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@300;400&text=%E2%82%B9&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/img/hero.jpg" media="(min-width: 900px)">
+<link rel="preload" as="image" href="assets/img/hero-portrait.jpg" media="(max-width: 899px)">
+<link rel="stylesheet" href="css/main.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body class="is-loading">
+
+<div class="loader" aria-hidden="true">
+  <div class="loader__mark"><span>Z</span><span>U</span><span>F</span><span>A</span></div>
+  <div class="loader__line"><i></i></div>
+  <div class="loader__meta"><span>One day at ZUFA</span><span class="loader__pct">0</span></div>
+</div>
+<div class="cursor" aria-hidden="true"><i></i></div>
+
+<!-- ============ THE WORLD (fixed 3D stage) ============ -->
+<div class="world" data-stage>
+  <div class="world__canvas" data-canvas></div>
+  <div class="world__scrim" data-scrim></div>
+
+  <!-- explorer (fullscreen interactive masterplan) -->
+  <div class="ex" data-explorer aria-hidden="true">
+    <div class="ex__top">
+      <div class="ex__title"><span class="eyebrow">Interactive Masterplan</span><b>Find your estate</b></div>
+      <div class="ex__filters" role="group" aria-label="Filter estates">
+        <button class="chip is-on" data-filter="all">All <em>59</em></button>
+        <button class="chip" data-filter="quarter"><i class="sw sw--quarter"></i>Quarter acre <em>40</em></button>
+        <button class="chip" data-filter="half"><i class="sw sw--half"></i>Half acre <em>12</em></button>
+        <button class="chip" data-filter="signature"><i class="sw sw--signature"></i>Signature <em>1</em></button>
+        <button class="chip" data-filter="bespoke"><i class="sw sw--bespoke"></i>Bespoke <em>6</em></button>
+      </div>
+      <div class="ex__tools">
+        <label class="ex__time" title="Time of day"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg><input type="range" min="6" max="22" step="0.25" value="10" data-time aria-label="Time of day"><output data-time-out>10:00</output></label>
+        <button class="iconbtn" data-reset title="Reset view" aria-label="Reset view"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/></svg></button>
+        <button class="iconbtn iconbtn--close" data-close title="Close" aria-label="Close masterplan"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
+    </div>
+    <aside class="ex__panel" data-panel aria-live="polite">
+      <div class="ex__empty">
+        <p class="eyebrow">59 estates · ₹5,000 / sq. yd</p>
+        <p class="ex__hint">Drag to orbit · scroll to zoom · right-drag to pan. Select an estate on the map or from the list.</p>
+        <div class="ex__list" data-list></div>
+      </div>
+      <div class="ex__detail" hidden>
+        <button class="ex__back" data-back>← All estates</button>
+        <div class="ex__head"><span class="ex__plotno">Plot <b data-f="id">—</b></span><span class="tag" data-f="catLabel">—</span></div>
+        <dl class="ex__specs">
+          <div><dt>Area</dt><dd><b data-f="sqyd">—</b> sq. yd</dd></div>
+          <div><dt>Home options</dt><dd>3,000 or 5,000 sft villa</dd></div>
+          <div><dt>In sq. ft</dt><dd data-f="sft">—</dd></div>
+          <div><dt>Rate</dt><dd>₹5,000 / sq. yd</dd></div>
+        </dl>
+        <div class="ex__price"><span>Indicative price</span><b data-f="price">—</b></div>
+        <div class="ex__villa">
+          <p class="eyebrow">Preview a home on this estate</p>
+          <div class="seg" role="group" aria-label="Villa preview">
+            <button data-villa="none" class="is-on">Land only</button>
+            <button data-villa="sanctuary">Sanctuary Villa · 3,000 sft</button>
+            <button data-villa="estate">Estate Villa · 5,000 sft</button>
+          </div>
+          <small>Indicative massing. Villa types are working names, offered as add-on options.</small>
+        </div>
+        <a href="#enquire" class="btn btn--light btn--block" data-enquire-plot>Enquire about this estate</a>
+      </div>
+    </aside>
+    <div class="ex__legend">
+      <span><i class="sw sw--quarter"></i>Quarter acre</span><span><i class="sw sw--half"></i>Half acre</span>
+      <span><i class="sw sw--signature"></i>Signature</span><span><i class="sw sw--bespoke"></i>Bespoke</span>
+      <span class="ex__north" title="North"><svg viewBox="0 0 24 24" data-compass><path d="M12 3l4 10h-8z" fill="currentColor"/><path d="M12 21l-4-8h8z" fill="none" stroke="currentColor"/></svg>N</span>
+    </div>
+    <div class="ex__tip" data-tip hidden></div>
+  </div>
+
+  <!-- villa studio (walk around a finished villa) -->
+  <div class="st" data-studio-ui aria-hidden="true">
+    <aside class="st__panel">
+      <p class="eyebrow">Villa Studio</p>
+      <h3 class="st__title" data-st-title>Sanctuary Villa</h3>
+      <p class="st__desc" data-st-desc></p>
+      <div class="seg" role="group" aria-label="Villa type">
+        <button data-st-type="sanctuary" class="is-on">Sanctuary Villa · 3,000 sft</button>
+        <button data-st-type="estate">Estate Villa · 5,000 sft</button>
+      </div>
+      <p class="eyebrow st__label">Time of day</p>
+      <div class="st__times" role="group" aria-label="Time of day">
+        <button data-st-hour="6.6">Dawn</button><button data-st-hour="12" class="is-on">Noon</button><button data-st-hour="17.7">Golden hour</button><button data-st-hour="20">Night</button>
+      </div>
+      <small>Drag to walk around the villa · scroll or pinch to zoom. The design shown is indicative.</small>
+      <a href="#enquire" class="btn btn--light btn--block" data-st-enquire>Enquire about this villa</a>
+    </aside>
+    <button class="iconbtn iconbtn--close st__close" data-st-close title="Close" aria-label="Close Villa Studio"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+</div>
+
+<!-- ============ HUD ============ -->
+<header class="nav">
+  <a class="nav__logo" href="#top" aria-label="ZUFA Living, back to start">ZUFA<small>Living</small></a>
+  <div class="nav__actions">
+    <button class="iconbtn nav__sound" data-sound aria-pressed="false" title="Turn sound on" aria-label="Turn ambient sound on"><svg viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10H4z"/><path class="snd-on" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="snd-off" d="M17 9.5l5 5M22 9.5l-5 5"/></svg></button>
+    <button class="btn btn--ghost btn--small nav__explore" data-explore>Find your estate</button>
+    <a class="btn btn--light btn--small" href="#enquire">Enquire</a>
+  </div>
+</header>
+<div class="clock" aria-hidden="true"><b data-clock>06:00</b><span data-clock-label>Dawn</span></div>
+<nav class="rail" aria-label="Chapters">
+  <a href="#ch-land" data-ch="0"><em>01</em><span>The land</span></a>
+  <a href="#ch-arrive" data-ch="1"><em>02</em><span>Arrival</span></a>
+  <a href="#ch-choose" data-ch="2"><em>03</em><span>Your land</span></a>
+  <a href="#ch-imagine" data-ch="3"><em>04</em><span>Imagine</span></a>
+  <a href="#ch-evening" data-ch="4"><em>05</em><span>Evening</span></a>
+  <a href="#ch-region" data-ch="5"><em>06</em><span>The region</span></a>
+  <a href="#enquire" data-ch="6"><em>07</em><span>Yours</span></a>
+</nav>
+
+<main id="top" class="story">
+
+  <!-- HERO -->
+  <section class="beat beat--hero" data-cam="sky" data-hour="5.9" data-ch="-1">
+    <div class="hero__media" data-hero>
+      <picture>
+        <source media="(max-width: 899px)" srcset="assets/img/hero-portrait.jpg">
+        <source media="(max-width: 1400px)" srcset="assets/img/hero-1280.jpg 1280w, assets/img/hero.jpg 2560w" sizes="100vw">
+        <img src="assets/img/hero.jpg" alt="Dusk view of the ZUFA grand entrance: a sculpted double-ring canopy over curved stone walls" fetchpriority="high">
+      </picture>
+      <div class="hero__veil"></div>
+    </div>
+    <div class="hero__content">
+      <p class="eyebrow">Chevella Road · Near Manneguda · Telangana</p>
+      <h1 class="hero__title" aria-label="ZUFA"><span class="hero__word">ZUFA</span></h1>
+      <p class="hero__lede">A 25-acre gated community of <em>wellness living.</em></p>
+      <p class="hero__tag">Farm Estates <i>|</i> Weekend Villas <i>|</i> Wellness Living</p>
+    </div>
+    <div class="hero__cue"><span>Scroll to spend a day at ZUFA</span><i></i></div>
+  </section>
+
+  <!-- 01 THE LAND -->
+  <section id="ch-land" class="beat" data-cam="overview" data-hour="6.2" data-ch="0">
+    <div class="beat__in">
+      <p class="beat__time"><b>06:10</b> The land</p>
+      <h2 class="beat__h">Before the address, <em>there was the land.</em></h2>
+      <p class="beat__p">Twenty-five acres off Chevella Road, near Manneguda. Fifty-nine estates for fifty-nine families.</p>
+      <dl class="facts"><div><dt>Acres</dt><dd>25</dd></div><div><dt>Families</dt><dd>59</dd></div></dl>
+    </div>
+  </section>
+  <section class="beat beat--right" data-cam="forestLow" data-hour="6.9" data-ch="0">
+    <div class="beat__in">
+      <p class="beat__time"><b>06:50</b> Forest hug</p>
+      <h2 class="beat__h">Wake to birdsong. <em>Breathe easy.</em></h2>
+      <p class="beat__p">Green on every side and a low AQI. Mornings here start slowly.</p>
+    </div>
+  </section>
+
+  <!-- 02 ARRIVAL -->
+  <section id="ch-arrive" class="beat" data-cam="arrival" data-hour="8" data-ch="1">
+    <div class="beat__in">
+      <p class="beat__time"><b>08:00</b> Arrival</p>
+      <h2 class="beat__h">A grand entrance, <em>every time.</em></h2>
+      <p class="beat__p">A sculpted canopy over hand-laid stone walls. Barcoded entry access, customised for each owner’s car.</p>
+      <figure class="beat__fig"><img src="assets/img/sign.jpg" alt="The ZUFA entrance wall in stone, as envisioned" loading="lazy"><figcaption>As envisioned · artist’s impression</figcaption></figure>
+    </div>
+  </section>
+  <section class="beat beat--right" data-cam="avenues" data-hour="9" data-ch="1">
+    <div class="beat__in">
+      <p class="beat__time"><b>09:00</b> The avenues</p>
+      <h2 class="beat__h">Palms, boulders <em>and room to breathe.</em></h2>
+      <p class="beat__p">A 55′ boulevard opens onto 40′ and 30′ avenues, landscaped in a boulder theme.</p>
+    </div>
+  </section>
+  <section class="beat" data-cam="club" data-hour="10" data-ch="1">
+    <div class="beat__in">
+      <p class="beat__time"><b>10:00</b> The clubhouse</p>
+      <h2 class="beat__h">Wellness, <em>at the heart.</em></h2>
+      <p class="beat__p">A swim, then the spa and jacuzzi, with the children at the play area. The clubhouse spreads across 5,099 sq. yd (45,891 sft) at the centre of the community.</p>
+    </div>
+  </section>
+
+  <!-- 03 CHOOSE -->
+  <section id="ch-choose" class="beat beat--right" data-cam="quarter" data-hour="11" data-hl="quarter,bespoke" data-ch="2">
+    <div class="beat__in">
+      <p class="beat__time"><b>11:00</b> Choose your land</p>
+      <h2 class="beat__h">Quarter acre. <em>₹60 lakh.</em></h2>
+      <p class="beat__p">Forty estates of 1,210 sq. yd (10,890 sft) each. There are also six bespoke-sized plots of 860–1,441 sq. yd (7,740–12,969 sft), from ₹43 lakh.</p>
+      <div class="legend-row"><span><i class="sw sw--quarter"></i>Quarter acre · 40</span><span><i class="sw sw--bespoke"></i>Bespoke · 6</span></div>
+    </div>
+  </section>
+  <section class="beat" data-cam="half" data-hour="12" data-hl="half,signature" data-ch="2">
+    <div class="beat__in">
+      <p class="beat__time"><b>12:00</b> Choose your land</p>
+      <h2 class="beat__h">Half acre. <em>₹1.20 crore.</em></h2>
+      <p class="beat__p">Twelve estates of 2,420 sq. yd (21,780 sft) each, plus the Signature Estate: plot 47, 4,226 sq. yd (38,034 sft), ₹2.11 crore.</p>
+      <div class="legend-row"><span><i class="sw sw--half"></i>Half acre · 12</span><span><i class="sw sw--signature"></i>Signature · 1</span></div>
+      <div class="beat__cta"><button class="btn btn--light" data-explore>Find your estate</button></div>
+      <p class="beat__note">Base rate ₹5,000 per sq. yd (≈ ₹555 per sft); prices shown are rounded. Pricing for limited inventory only. Physical area is measured and handed over to each owner.</p>
+    </div>
+  </section>
+
+  <!-- 04 IMAGINE -->
+  <section id="ch-imagine" class="beat beat--right" data-cam="buildWide" data-hour="13" data-build="0.3" data-ch="3">
+    <div class="beat__in">
+      <p class="beat__time"><b>13:00</b> Imagine possibilities</p>
+      <h2 class="beat__h">Every estate, <em>a blank canvas.</em></h2>
+      <p class="beat__p">Build now or build later. Choose a villa, design your own, or simply let it grow.</p>
+    </div>
+  </section>
+  <section class="beat" data-cam="villaQ" data-hour="14" data-build="0.7" data-ch="3">
+    <div class="beat__in">
+      <p class="beat__time"><b>14:00</b> Andalusian Spanish</p>
+      <h2 class="beat__h">Sanctuary Villa. <em>3,000 sft.</em></h2>
+      <p class="beat__p">An Andalusian Spanish-themed weekend villa on a single level, with a private pool. Build it on a quarter-acre or a half-acre estate.</p>
+      <div class="beat__cta"><button class="btn btn--light" data-studio="sanctuary">Walk around this villa</button></div>
+    </div>
+  </section>
+  <section class="beat" data-cam="villaH" data-hour="15" data-build="0.85" data-ch="3">
+    <div class="beat__in">
+      <p class="beat__time"><b>15:00</b> Californian Spanish</p>
+      <h2 class="beat__h">Estate Villa. <em>5,000 sft.</em></h2>
+      <p class="beat__p">A Californian Spanish-themed weekend villa with a private pool. Build it on a quarter-acre or a half-acre estate.</p>
+      <div class="beat__cta"><button class="btn btn--light" data-studio="estate">Walk around this villa</button></div>
+    </div>
+  </section>
+  <section class="beat beat--right" data-cam="farm" data-hour="16" data-build="0.95" data-ch="3">
+    <div class="beat__in">
+      <p class="beat__time"><b>16:00</b> Farm estate</p>
+      <h2 class="beat__h">Grow your <em>own.</em></h2>
+      <p class="beat__p">Orchards, kitchen gardens and organic farming on your own land.</p>
+    </div>
+  </section>
+  <section class="beat beat--right" data-cam="buildWide2" data-hour="16.8" data-build="1" data-ch="3">
+    <div class="beat__in">
+      <p class="beat__time"><b>16:45</b> Free zone</p>
+      <h2 class="beat__h">Or build exactly <em>what you imagine.</em></h2>
+      <p class="beat__p">The Free Zone is open for construction to your own design.</p>
+      <p class="beat__note">Homes shown are indicative. Sanctuary and Estate Villas are working names, offered as add-on options.</p>
+    </div>
+  </section>
+
+  <!-- 05 EVENING -->
+  <section id="ch-evening" class="beat" data-cam="avenues2" data-hour="17.7" data-build="1" data-ch="4">
+    <div class="beat__in">
+      <p class="beat__time"><b>17:45</b> Golden hour</p>
+      <h2 class="beat__h">Long walks <em>under the palms.</em></h2>
+      <p class="beat__p">Children on bicycles and neighbours on the avenue. Fifty-nine families, one community.</p>
+    </div>
+  </section>
+  <section class="beat beat--right" data-cam="arrivalNight" data-hour="19.3" data-build="1" data-ch="4">
+    <div class="beat__in">
+      <p class="beat__time"><b>19:15</b> The weekend begins</p>
+      <h2 class="beat__h">Friends arrive. <em>The avenues glow.</em></h2>
+      <p class="beat__p">The gate recognises every owner’s car, and lights come up across the estates.</p>
+    </div>
+  </section>
+
+  <!-- 06 THE REGION -->
+  <section id="ch-region" class="beat beat--low" data-cam="regionWide" data-hour="20.2" data-build="1" data-region="1" data-reg="0" data-ch="5">
+    <div class="beat__in">
+      <p class="beat__time"><b>20:00</b> The bigger picture</p>
+      <h2 class="beat__h">Where the city <em>is headed.</em></h2>
+      <p class="beat__p">A 45-minute drive: 50 km from the ORR at Appa, Exit 18, along Chevella Road. Here are five reasons this road changes everything.</p>
+      <p class="beat__note">Schematic map, not to scale.</p>
+    </div>
+  </section>
+  <section class="beat beat--short beat--low" data-cam="regionWest" data-hour="20.4" data-build="1" data-region="1" data-reg="1" data-ch="5">
+    <div class="beat__in beat__in--num"><span class="num">01</span><h3 class="beat__h3">Data Centre City, <em>Chevella.</em></h3></div>
+  </section>
+  <section class="beat beat--short beat--low" data-cam="regionWide" data-hour="20.6" data-build="1" data-region="1" data-reg="2" data-ch="5">
+    <div class="beat__in beat__in--num"><span class="num">02</span><h3 class="beat__h3">The Regional <em>Ring Road.</em></h3></div>
+  </section>
+  <section class="beat beat--short beat--low" data-cam="regionWest" data-hour="20.8" data-build="1" data-region="1" data-reg="3" data-ch="5">
+    <div class="beat__in beat__in--num"><span class="num">03</span><h3 class="beat__h3">New 200-feet road expansion, <em>for a hassle-free drive.</em></h3></div>
+  </section>
+  <section class="beat beat--short beat--low" data-cam="regionCity" data-hour="21" data-build="1" data-region="1" data-reg="4" data-ch="5">
+    <div class="beat__in beat__in--num"><span class="num">04</span><h3 class="beat__h3">Shamshabad Airport <em>access road.</em></h3></div>
+  </section>
+  <section class="beat beat--low" data-cam="regionWide" data-hour="21.2" data-build="1" data-region="1" data-reg="5" data-ch="5">
+    <div class="beat__in beat__in--num"><span class="num">05</span><h3 class="beat__h3">The bullet <em>train road.</em></h3>
+      <p class="beat__p">All government announced. Land on this corridor is an investment for appreciation.</p></div>
+  </section>
+
+  <!-- 07 YOURS -->
+  <section class="beat beat--center" data-cam="nightSky" data-hour="22" data-build="1" data-region="0" data-reg="5" data-ch="6">
+    <div class="beat__in">
+      <p class="beat__time"><b>22:00</b> And then, the stars</p>
+      <h2 class="beat__h beat__h--xl">Imagine <em>possibilities.</em></h2>
+    </div>
+  </section>
+  <section id="enquire" class="beat beat--final" data-cam="finale" data-hour="22.4" data-build="1" data-region="0" data-reg="5" data-ch="6">
+    <div class="final">
+      <div class="final__intro">
+        <p class="beat__time"><b>Tomorrow</b> Your first day</p>
+        <h2 class="beat__h">Begin your <em>ZUFA</em> story.</h2>
+        <p class="beat__p">Book a private site visit or ask for the price sheet. A member of our team will get back to you.</p>
+        <dl class="final__facts">
+          <div><dt>Site</dt><dd>Sy. Nos. 130, 131, 132, Medikonda (V), Pudur (M), Vikarabad Dist., Telangana</dd></div>
+          <div><dt>How to reach</dt><dd>Chevella Road, near Manneguda · <a href="https://maps.app.goo.gl/EocbzyvPBTnYmMdu6" target="_blank" rel="noopener">Open in Google Maps ↗</a></dd></div>
+        </dl>
+      </div>
+      <form class="form" data-form novalidate>
+        <div class="field"><input id="f-name" name="name" required autocomplete="name" placeholder=" "><label for="f-name">Full name</label></div>
+        <div class="field"><input id="f-phone" name="phone" type="tel" required autocomplete="tel" placeholder=" " pattern="[0-9+\s-]{8,}"><label for="f-phone">Phone</label></div>
+        <div class="field"><input id="f-email" name="email" type="email" autocomplete="email" placeholder=" "><label for="f-email">Email (optional)</label></div>
+        <div class="field field--select">
+          <select id="f-interest" name="interest">
+            <option>Quarter-acre estate</option><option>Half-acre estate</option><option>Signature Estate (Plot 47)</option>
+            <option>Estate with villa add-on</option><option>Just exploring</option>
+          </select><label for="f-interest">Interested in</label>
+        </div>
+        <div class="field"><input id="f-plot" name="plot" placeholder=" " inputmode="numeric"><label for="f-plot">Preferred plot no. (optional)</label></div>
+        <div class="field"><input id="f-msg" name="message" placeholder=" "><label for="f-msg">Message</label></div>
+        <button class="btn btn--light btn--block field--full" type="submit">Request a site visit</button>
+        <p class="form__ok" hidden>Thank you. We’ll be in touch shortly.</p>
+      </form>
+    </div>
+    <footer class="foot">
+      <span>© ZUFA Living · Premium Lifestyle Destination</span>
+      <span>Visuals are artist’s impressions. The 3D world is indicative, based on layout L1; homes shown are illustrative. Regional map is schematic. Prices are indicative and subject to change.</span>
+    </footer>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

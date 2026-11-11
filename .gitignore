@@ -1,0 +1,10 @@
+# Blender working files (large; rebuild from blender/*.py)
+*.blend
+*.blend1
+blender/export/
+
+# local tooling
+.claude/
+node_modules/
+.DS_Store
+Thumbs.db
